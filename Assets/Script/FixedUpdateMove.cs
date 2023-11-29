@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class FixedUpdateMove : MonoBehaviour
 {
+    public float speed = 3;
     void FixedUpdate()
     {
-            this.transform.Translate(0, 0, 0.01f);
+        this.transform.Translate(0, 0, Time.deltaTime * speed);
     }
 }
