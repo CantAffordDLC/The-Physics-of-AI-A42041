@@ -10,21 +10,24 @@ public class FireShell : MonoBehaviour
     public GameObject enemy;
     public Transform turretBase;
     float speed = 15;
-    private float rotSpeed = 2;
+    private float rotSpeed = 5;
+    float moveSpeed = 3;
 
     void CreateBullet()
     {
 
-        Instantiate(bullet, turret.transform.position, turret.transform.rotation);
+        GameObject Shell =Instantiate(bullet, turret.transform.position, turret.transform.rotation);
+        Shell.GetComponent<Rigidbody>().velocity= speed * turretBase.forward;
     }
 
-    void RotateTurret()
+    float? RotateTurret()
     {
-        float? angle = CalculateAngle(true);
+        float? angle = CalculateAngle(false);
         if(angle != null)
         {
             turretBase.localEulerAngles = new Vector3(360f - (float)angle, 0f, 0f);
         }
+        return angle;
     }
 
     float? CalculateAngle(bool low)
@@ -32,7 +35,7 @@ public class FireShell : MonoBehaviour
         Vector3 targetDir = enemy.transform.position - this.transform.position;
         float y = targetDir.y;
         targetDir.y = 0f;
-        float x = targetDir.magnitude;
+        float x = targetDir.magnitude -1;
         float gravity = 9.8f;
         float sSqr = speed * speed;
         float underTheSqrRoot = (sSqr * sSqr) - gravity * (gravity * x * x + 2 * y * sSqr);
@@ -62,8 +65,8 @@ public class FireShell : MonoBehaviour
         Vector3 direction = (enemy.transform.position - this.transform.position).normalized;
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
         this.transform.rotation = Quaternion.Slerp(this.transform.rotation, lookRotation, Time.deltaTime * rotSpeed);
-        RotateTurret();
-        if (Input.GetKeyDown(KeyCode.Space))
+        float? angle = RotateTurret();
+        if (angle != null)
         {
 
             // Vector3 aimAt = CalculateTrajectory();
@@ -72,6 +75,10 @@ public class FireShell : MonoBehaviour
             //    this.transform.forward = CalculateTrajectory();
             CreateBullet();
             //}
+        }
+        else
+        {
+            this.transform.Translate(0, 0, Time.deltaTime * moveSpeed);
         }
     }
 
